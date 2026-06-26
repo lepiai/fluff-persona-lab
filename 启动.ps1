@@ -131,3 +131,7 @@ if ($hasPython) {
     Write-Host "    To stop: close the minimized windows." -ForegroundColor DarkGray
 }
 Write-Host ""
+Write-Host "  --------------------------------------------" -ForegroundColor DarkGray
+Write-Host "    Made by 乐皮ai  |  v1.6  |  2026.06.26" -ForegroundColor DarkGray
+Write-Host "  --------------------------------------------" -ForegroundColor DarkGray
+Write-Host ""
