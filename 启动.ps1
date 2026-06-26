@@ -15,12 +15,12 @@ Write-Host "  [1/4] Ollama..." -NoNewline
 $ollamaRunning = $false
 try {
     $tags = Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -TimeoutSec 3
-    if ($tags.models.name -contains "qwen3.5:2b") {
+    if ($tags.models.name -contains "qwen3.5:4b") {
         Write-Host " OK (model ready)" -ForegroundColor Green
         $ollamaRunning = $true
     } else {
         Write-Host " OK (pulling model...)" -ForegroundColor Yellow
-        Start-Process -FilePath "ollama" -ArgumentList "pull","qwen3.5:2b" -WindowStyle Minimized
+        Start-Process -FilePath "ollama" -ArgumentList "pull","qwen3.5:4b" -WindowStyle Minimized
         $ollamaRunning = $true
     }
 } catch {
@@ -79,7 +79,7 @@ try {
 # --- 4. Open Browser ---
 Write-Host "  [4/4] Browser..." -NoNewline
 Start-Sleep -Seconds 1
-Start-Process "http://localhost:8765/20260625.html"
+Start-Process "http://localhost:8765/index.html"
 Write-Host " Opened" -ForegroundColor Green
 
 Write-Host ""
@@ -87,7 +87,7 @@ Write-Host "  ============================================" -ForegroundColor Cya
 Write-Host "    Ready!" -ForegroundColor Green
 Write-Host "  ============================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "    App:     http://localhost:8765/20260625.html"
+Write-Host "    App:     http://localhost:8765/index.html"
 Write-Host "    Ollama:  http://localhost:11434"
 Write-Host "    Proxy:   http://localhost:8081"
 Write-Host ""
