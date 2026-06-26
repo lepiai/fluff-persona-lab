@@ -37,7 +37,7 @@
 ollama pull qwen3.5:4b
 ```
 
-> 模型大小约 2.5GB，首次下载需要一些时间。也可以在 [Ollama 模型库](https://ollama.com/library/qwen3.5) 查看 `qwen3.5` 系列的所有可用版本。
+> 模型大小约 3.4GB，首次下载需要一些时间。也可以在 [Ollama 模型库](https://ollama.com/library/qwen3.5) 查看 `qwen3.5` 系列的所有可用版本。
 
 ### 2. 获取项目代码
 
