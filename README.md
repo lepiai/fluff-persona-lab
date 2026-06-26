@@ -46,29 +46,37 @@ git clone https://github.com/lepiai/fluff-persona-lab.git
 cd fluff-persona-lab
 ```
 
-### 3. 一键启动（Windows）
+### 3.（选装）安装 Python
 
-双击 `启动.bat` 即可。脚本会自动：
+Python 为**可选依赖**。安装后可启动本地 URL 代理，大幅提升网址抓取成功率；不安装也能正常使用，只需将文章文字复制粘贴到输入框即可。
 
-1. 启动 Ollama 服务（端口 11434）
-2. 启动 URL 代理服务（端口 8081）
-3. 启动 HTTP 静态服务器（端口 8765）
-4. 打开浏览器访问 `http://localhost:8765/index.html`
+- 下载地址：https://www.python.org/downloads/
+- 安装时勾选「Add Python to PATH」
+- 无需额外依赖，标准库即可运行
 
-### 手动启动（macOS / Linux）
+> 未安装 Python 时：脚本会跳过代理服务，直接用浏览器打开页面。网址抓取将回退到外部公共代理（稳定性较低），**推荐使用文本粘贴模式**。
+
+### 4. 启动
+
+**Windows**：双击 `启动.bat` 即可，脚本会自动检测 Python 并选择启动模式：
+
+- 有 Python：启动 Ollama + URL 代理 + HTTP 服务器，打开 `http://localhost:8765/index.html`
+- 无 Python：启动 Ollama，直接用浏览器打开页面（网址抓取功能降级）
+
+**macOS / Linux**：
 
 ```bash
 # 终端 1：启动 Ollama
 ollama serve
 
-# 终端 2：启动 URL 代理
+# 终端 2（选装）：启动 URL 代理，提升网址抓取成功率
 python proxy.py
 
-# 终端 3：启动 HTTP 服务器
+# 终端 3（选装）：启动 HTTP 服务器
 python -m http.server 8765
 ```
 
-然后在浏览器打开 `http://localhost:8765/index.html`。
+有 HTTP 服务器时访问 `http://localhost:8765/index.html`，否则直接用浏览器打开 `index.html` 文件即可。
 
 ## 项目结构
 
