@@ -93,14 +93,21 @@ if ($hasPython) {
     Write-Host "        HTTP Server..." -NoNewline
     Clear-Port 8765
     Write-Host " Starting..." -ForegroundColor Yellow
-    $httpArgs = "-m http.server 8765 --directory `"$AppDir`""
-    Start-Process -FilePath $pythonCmd -ArgumentList $httpArgs -WindowStyle Minimized
-    Start-Sleep -Seconds 3
-    try {
-        Invoke-WebRequest -Uri "http://localhost:8765/" -TimeoutSec 5 -UseBasicParsing | Out-Null
+    Start-Process -FilePath $pythonCmd -ArgumentList @("-m","http.server","8765","--directory",$AppDir) -WindowStyle Minimized
+    # Retry loop: wait for server to be ready (can take a few seconds)
+    $httpReady = $false
+    for ($i = 0; $i -lt 5; $i++) {
+        Start-Sleep -Seconds 2
+        try {
+            Invoke-WebRequest -Uri "http://127.0.0.1:8765/" -TimeoutSec 3 -UseBasicParsing | Out-Null
+            $httpReady = $true
+            break
+        } catch {}
+    }
+    if ($httpReady) {
         Write-Host "        HTTP server started" -ForegroundColor Green
         $httpRunning = $true
-    } catch {
+    } else {
         Write-Host "        FAILED - port may be in use" -ForegroundColor Red
         Write-Host "        Try manually: $pythonCmd -m http.server 8765" -ForegroundColor DarkGray
     }
