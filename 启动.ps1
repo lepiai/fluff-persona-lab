@@ -7,7 +7,7 @@
 $AppDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $AppDir
 
-# Brand name: 乐皮ai (built from Unicode code points to avoid file encoding issues)
+# Brand name: built from Unicode code points to avoid file encoding issues
 $Brand = "$([char]0x4e50)$([char]0x76ae)ai"
 
 Write-Host ""
@@ -15,6 +15,17 @@ Write-Host "  ============================================" -ForegroundColor Cya
 Write-Host "    FeiHua Persona Lab - One-Click Start" -ForegroundColor Cyan
 Write-Host "  ============================================" -ForegroundColor Cyan
 Write-Host ""
+
+# --- Helper: kill any process listening on a port ---
+function Clear-Port($port) {
+    $conns = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
+    foreach ($conn in $conns) {
+        try {
+            Stop-Process -Id $conn.OwningProcess -Force -ErrorAction Stop
+        } catch {}
+    }
+    if ($conns) { Start-Sleep -Milliseconds 500 }
+}
 
 # --- Detect Python ---
 $pythonCmd = $null
@@ -61,9 +72,10 @@ if ($hasPython) {
     Write-Host "  [2/3] URL Proxy..." -NoNewline
     try {
         Invoke-RestMethod -Uri "http://localhost:8081/health" -TimeoutSec 3 | Out-Null
-        Write-Host " OK" -ForegroundColor Green
+        Write-Host " OK (already running)" -ForegroundColor Green
         $proxyRunning = $true
     } catch {
+        Clear-Port 8081
         Write-Host " Starting..." -ForegroundColor Yellow
         Start-Process -FilePath $pythonCmd -ArgumentList "$AppDir\proxy.py" -WindowStyle Minimized
         Start-Sleep -Seconds 2
@@ -77,28 +89,18 @@ if ($hasPython) {
     }
 
     # --- 2b. HTTP Server (port 8765) ---
+    # Always restart to ensure serving from the correct directory
     Write-Host "        HTTP Server..." -NoNewline
+    Clear-Port 8765
+    Write-Host " Starting..." -ForegroundColor Yellow
+    Start-Process -FilePath $pythonCmd -ArgumentList "-m","http.server","8765","--directory",$AppDir -WindowStyle Minimized
+    Start-Sleep -Seconds 2
     try {
-        Invoke-WebRequest -Uri "http://localhost:8765/" -TimeoutSec 2 -UseBasicParsing | Out-Null
-        Write-Host " OK" -ForegroundColor Green
+        Invoke-WebRequest -Uri "http://localhost:8765/" -TimeoutSec 3 -UseBasicParsing | Out-Null
+        Write-Host "        HTTP server started" -ForegroundColor Green
         $httpRunning = $true
     } catch {
-        # Kill stale process on port 8765 before retrying
-        $staleProc = Get-NetTCPConnection -LocalPort 8765 -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($staleProc) {
-            Stop-Process -Id $staleProc.OwningProcess -Force -ErrorAction SilentlyContinue
-            Start-Sleep -Seconds 1
-        }
-        Write-Host " Starting..." -ForegroundColor Yellow
-        Start-Process -FilePath $pythonCmd -ArgumentList "-m","http.server","8765","--directory",$AppDir -WindowStyle Minimized
-        Start-Sleep -Seconds 3
-        try {
-            Invoke-WebRequest -Uri "http://localhost:8765/" -TimeoutSec 3 -UseBasicParsing | Out-Null
-            Write-Host "        HTTP server started" -ForegroundColor Green
-            $httpRunning = $true
-        } catch {
-            Write-Host "        FAILED" -ForegroundColor Red
-        }
+        Write-Host "        FAILED" -ForegroundColor Red
     }
 } else {
     Write-Host "  [2/3] Python not found - skipping URL Proxy" -ForegroundColor Yellow
@@ -112,7 +114,6 @@ Start-Sleep -Seconds 1
 if ($httpRunning) {
     Start-Process "http://localhost:8765/index.html"
 } else {
-    # No HTTP server: open file directly
     Start-Process "$AppDir\index.html"
 }
 Write-Host " Opened" -ForegroundColor Green
