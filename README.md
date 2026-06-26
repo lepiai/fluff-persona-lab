@@ -108,6 +108,14 @@ fluff-persona-lab/
 | qwen3.5:2b | ~1.6GB | 88% | 偏高（虚报） | 8GB 及以上 |
 | **qwen3.5:4b** | ~2.5GB | **100%** | **准确** | 8GB 及以上 |
 
+## 项目预览截图
+
+<img width="945" height="1131" alt="image" src="https://github.com/user-attachments/assets/a97ad6d3-6fd5-4fca-a33d-bdd3c38d5399" />
+
+
+<img width="780" height="1656" alt="image" src="https://github.com/user-attachments/assets/250203c2-657d-4673-bbd2-ab318e34785d" />
+
+
 ## License
 
 MIT
