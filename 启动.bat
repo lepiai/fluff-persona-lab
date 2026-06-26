@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul 2>&1
-title 废话人设鉴定所 - 一键启动
+title FeiHua Persona Lab
 cd /d "%~dp0"
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0启动.ps1"
+for %%f in (*.ps1) do powershell -NoProfile -ExecutionPolicy Bypass -File "%%f"
 pause
