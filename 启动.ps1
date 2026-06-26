@@ -1,8 +1,14 @@
-# 废话人设鉴定所 - 一键启动脚本
-# 用法: 双击 启动.bat
+# FeiHua Persona Lab - One-Click Start Script
+# Usage: double-click 启动.bat
+
+# Fix console encoding for Chinese output
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 $AppDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $AppDir
+
+# Brand name: 乐皮ai (built from Unicode code points to avoid file encoding issues)
+$Brand = "$([char]0x4e50)$([char]0x76ae)ai"
 
 Write-Host ""
 Write-Host "  ============================================" -ForegroundColor Cyan
@@ -10,7 +16,7 @@ Write-Host "    FeiHua Persona Lab - One-Click Start" -ForegroundColor Cyan
 Write-Host "  ============================================" -ForegroundColor Cyan
 Write-Host ""
 
-# --- 检测 Python ---
+# --- Detect Python ---
 $pythonCmd = $null
 foreach ($cmd in @("python", "python3", "py")) {
     try {
@@ -46,7 +52,7 @@ try {
     }
 }
 
-# --- 2. URL Proxy + HTTP Server (需要 Python) ---
+# --- 2. URL Proxy + HTTP Server (requires Python) ---
 $proxyRunning = $false
 $httpRunning = $false
 
@@ -77,11 +83,17 @@ if ($hasPython) {
         Write-Host " OK" -ForegroundColor Green
         $httpRunning = $true
     } catch {
+        # Kill stale process on port 8765 before retrying
+        $staleProc = Get-NetTCPConnection -LocalPort 8765 -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($staleProc) {
+            Stop-Process -Id $staleProc.OwningProcess -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 1
+        }
         Write-Host " Starting..." -ForegroundColor Yellow
         Start-Process -FilePath $pythonCmd -ArgumentList "-m","http.server","8765","--directory",$AppDir -WindowStyle Minimized
-        Start-Sleep -Seconds 2
+        Start-Sleep -Seconds 3
         try {
-            Invoke-WebRequest -Uri "http://localhost:8765/" -TimeoutSec 2 -UseBasicParsing | Out-Null
+            Invoke-WebRequest -Uri "http://localhost:8765/" -TimeoutSec 3 -UseBasicParsing | Out-Null
             Write-Host "        HTTP server started" -ForegroundColor Green
             $httpRunning = $true
         } catch {
@@ -100,7 +112,7 @@ Start-Sleep -Seconds 1
 if ($httpRunning) {
     Start-Process "http://localhost:8765/index.html"
 } else {
-    # 无 Python 时直接用文件协议打开
+    # No HTTP server: open file directly
     Start-Process "$AppDir\index.html"
 }
 Write-Host " Opened" -ForegroundColor Green
@@ -132,6 +144,6 @@ if ($hasPython) {
 }
 Write-Host ""
 Write-Host "  --------------------------------------------" -ForegroundColor DarkGray
-Write-Host "    Made by 乐皮ai  |  v1.6  |  2026.06.26" -ForegroundColor DarkGray
+Write-Host "    Made by $Brand  |  v1.6  |  2026.06.26" -ForegroundColor DarkGray
 Write-Host "  --------------------------------------------" -ForegroundColor DarkGray
 Write-Host ""
