@@ -1,0 +1,28 @@
+# TRAE 临时文件
+.trae/
+
+# 备份与旧版本
+bak/
+
+# 产品评估报告（非运行所需）
+废话人设鉴定所-五视角产品评估.html
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 日志文件
+*.log
+
+# 环境变量
+.env
+.env.local
+
+# 系统文件
+Thumbs.db
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
