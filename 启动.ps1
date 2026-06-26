@@ -93,14 +93,16 @@ if ($hasPython) {
     Write-Host "        HTTP Server..." -NoNewline
     Clear-Port 8765
     Write-Host " Starting..." -ForegroundColor Yellow
-    Start-Process -FilePath $pythonCmd -ArgumentList "-m","http.server","8765","--directory",$AppDir -WindowStyle Minimized
-    Start-Sleep -Seconds 2
+    $httpArgs = "-m http.server 8765 --directory `"$AppDir`""
+    Start-Process -FilePath $pythonCmd -ArgumentList $httpArgs -WindowStyle Minimized
+    Start-Sleep -Seconds 3
     try {
-        Invoke-WebRequest -Uri "http://localhost:8765/" -TimeoutSec 3 -UseBasicParsing | Out-Null
+        Invoke-WebRequest -Uri "http://localhost:8765/" -TimeoutSec 5 -UseBasicParsing | Out-Null
         Write-Host "        HTTP server started" -ForegroundColor Green
         $httpRunning = $true
     } catch {
-        Write-Host "        FAILED" -ForegroundColor Red
+        Write-Host "        FAILED - port may be in use" -ForegroundColor Red
+        Write-Host "        Try manually: $pythonCmd -m http.server 8765" -ForegroundColor DarkGray
     }
 } else {
     Write-Host "  [2/3] Python not found - skipping URL Proxy" -ForegroundColor Yellow
